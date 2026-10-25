@@ -1,0 +1,998 @@
+/* ==========================================================================
+   Panda Clicker — feuille de style
+   Concept : forêt de bambous la nuit ou à l'aube. Le panda trône à gauche
+   (collant sur grand écran), la boutique à onglets est à droite, et des
+   feuilles tombent en fond au rythme de la production.
+
+   Sommaire
+   1. Variables (thèmes clair / sombre)
+   2. Base et décor
+   3. En-tête (titre, bandeau, banque)
+   4. Mise en page générale
+   5. Panda et zone de clic
+   6. Onglets et barre d'achat
+   7. Éléments de liste (bâtiments, améliorations, jade)
+   8. Succès, stats, réglages
+   9. Boutons et formulaires
+   10. Panda doré et notifications
+   11. Responsive et accessibilité
+   ========================================================================== */
+
+
+/* ==========================================================================
+   1. Variables
+   ========================================================================== */
+
+:root {
+  /* Surfaces et texte */
+  --bg: #e7efdf;
+  --bg2: #dbe7d2;
+  --surface: #f5f9f0;
+  --ink: #15281b;
+  --muted: #53695a;
+  --line: #c3d3bb;
+
+  /* Couleurs d'accent */
+  --accent: #3d8a37;
+  --accent-ink: #ffffff;
+  --jade: #13826f;
+  --gold: #d9951a;
+  --danger: #b04431;
+
+  /* Décor */
+  --stalk: rgba(61, 138, 55, 0.10);
+  --leaf: #4d9a45;
+  --glow: rgba(255, 255, 255, 0.9);
+
+  /* Panda */
+  --panda-white: #fbfaf4;
+  --panda-black: #212723;
+  --panda-edge: #98ae96;
+
+  /* Typographie */
+  --font-display: 'Bagel Fat One', 'Arial Rounded MT Bold', 'Trebuchet MS', system-ui, sans-serif;
+  --font-body: 'Figtree', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  color-scheme: light;
+  box-sizing: border-box;
+}
+
+/* Thème sombre : automatique, sauf si le thème clair est forcé */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0b1610;
+    --bg2: #12231a;
+    --surface: #152a1f;
+    --ink: #e2eede;
+    --muted: #8ca693;
+    --line: #254130;
+    --accent: #8ccf68;
+    --accent-ink: #0b1610;
+    --jade: #4fd1b4;
+    --gold: #f2bd3c;
+    --danger: #ef8a76;
+    --stalk: rgba(140, 207, 104, 0.07);
+    --leaf: #7cc65a;
+    --glow: rgba(140, 207, 104, 0.18);
+    --panda-edge: #6f9378;
+    color-scheme: dark;
+  }
+}
+
+/* Thème sombre : forcé */
+:root[data-theme="dark"] {
+  --bg: #0b1610;
+  --bg2: #12231a;
+  --surface: #152a1f;
+  --ink: #e2eede;
+  --muted: #8ca693;
+  --line: #254130;
+  --accent: #8ccf68;
+  --accent-ink: #0b1610;
+  --jade: #4fd1b4;
+  --gold: #f2bd3c;
+  --danger: #ef8a76;
+  --stalk: rgba(140, 207, 104, 0.07);
+  --leaf: #7cc65a;
+  --glow: rgba(140, 207, 104, 0.18);
+  --panda-edge: #6f9378;
+  color-scheme: dark;
+}
+
+
+/* ==========================================================================
+   2. Base et décor
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-padding-top: env(safe-area-inset-top, 0px);
+}
+
+body {
+  margin: 0;
+  padding-block: 14px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  min-height: 100%;
+  position: relative;
+  overflow-x: hidden;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.45;
+  -webkit-tap-highlight-color: transparent;
+}
+
+img {
+  max-width: 100%;
+}
+
+[hidden]:not([hidden="until-found" i]) {
+  display: none !important;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Fond : tiges de bambou en dégradés répétés + halo lumineux */
+.forest {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 61px, var(--stalk) 61px 71px, transparent 71px 163px),
+    repeating-linear-gradient(90deg, transparent 0 117px, var(--stalk) 117px 124px, transparent 124px 241px),
+    repeating-linear-gradient(0deg, transparent 0 119px, var(--bg) 119px 122px),
+    radial-gradient(80% 60% at 30% 20%, var(--glow), transparent 70%);
+}
+
+/* Canvas des feuilles qui tombent */
+#leaves {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.app {
+  position: relative;
+  z-index: 1;
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+h2 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 22px;
+  margin: 16px 0 8px;
+}
+
+h2:first-child {
+  margin-top: 0;
+}
+
+
+/* ==========================================================================
+   3. En-tête
+   ========================================================================== */
+
+.top {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.brand {
+  min-width: 0;
+  flex: 1 1 280px;
+}
+
+h1 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(26px, 4.4vw, 38px);
+  line-height: 1;
+  margin: 0 0 6px;
+  letter-spacing: 0.01em;
+}
+
+/* Bandeau d'actualités */
+.ticker {
+  margin: 0;
+  min-height: 21px;
+  color: var(--muted);
+  font-size: 14px;
+  transition: opacity 0.5s;
+}
+
+.ticker.out {
+  opacity: 0;
+}
+
+/* Banque de bambous */
+.bank {
+  text-align: right;
+  min-width: 0;
+}
+
+.bank-n {
+  font-family: var(--font-display);
+  font-size: clamp(36px, 8vw, 68px);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+  word-break: break-word;
+}
+
+.bank-l {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.bank-l b {
+  color: var(--ink);
+}
+
+
+/* ==========================================================================
+   4. Mise en page générale
+   ========================================================================== */
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(290px, 410px) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.stage,
+.panel {
+  min-width: 0;
+}
+
+
+/* ==========================================================================
+   5. Panda et zone de clic
+   ========================================================================== */
+
+.field {
+  position: relative;
+  padding: 14px 12px 10px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background:
+    radial-gradient(closest-side, var(--glow), transparent 75%),
+    var(--surface);
+}
+
+#panda {
+  display: block;
+  width: 100%;
+  max-width: 340px;
+  margin: 0 auto;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+#panda svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  pointer-events: none;
+}
+
+/* Couleurs du dessin du panda */
+.pw {
+  fill: var(--panda-white);
+  stroke: var(--panda-edge);
+  stroke-width: 2;
+}
+
+.pb {
+  fill: var(--panda-black);
+  stroke: var(--panda-edge);
+  stroke-width: 1.2;
+}
+
+/* Animations : respiration et clignement */
+#pBody {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: breathe 4.2s ease-in-out infinite;
+}
+
+.pupils {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: blink 5.5s infinite;
+}
+
+@keyframes breathe {
+  50% { transform: scale(1.012, 0.988); }
+}
+
+@keyframes blink {
+  0%, 94%, 100% { transform: scaleY(1); }
+  96%           { transform: scaleY(0.08); }
+}
+
+/* Gain flottant affiché à chaque clic */
+.pop {
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
+  white-space: nowrap;
+  font-family: var(--font-display);
+  font-size: 22px;
+  color: var(--accent);
+  text-shadow: 0 1px 0 var(--bg), 0 0 6px var(--bg);
+  animation: rise 0.9s ease-out forwards;
+}
+
+.pop.gold {
+  color: var(--gold);
+}
+
+@keyframes rise {
+  from { opacity: 1; transform: translate(-50%, 0); }
+  to   { opacity: 0; transform: translate(-50%, -80px); }
+}
+
+/* Bouton Reset de l'en-tête */
+.reset-btn {
+  margin-top: 8px;
+  padding: 4px 12px;
+  font-size: 13px;
+}
+
+/* Bonus temporaires actifs */
+.buffs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 28px;
+  justify-content: center;
+  margin-top: 6px;
+}
+
+.buff {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--gold);
+  color: #241a02;
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Petits compteurs sous le panda */
+.readout {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.readout div {
+  min-width: 0;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: var(--bg2);
+}
+
+.readout span {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.readout b {
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+  word-break: break-word;
+}
+
+
+/* ==========================================================================
+   6. Onglets et barre d'achat
+   ========================================================================== */
+
+.tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.tab {
+  flex: 0 0 auto;
+  padding: 7px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.tab[aria-selected="true"] {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-color: var(--accent);
+}
+
+/* Pastille de notification dans un onglet */
+.tab .n {
+  display: inline-block;
+  min-width: 20px;
+  margin-left: 6px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--gold);
+  color: #241a02;
+  font-size: 12px;
+  text-align: center;
+}
+
+.tab .n:empty {
+  display: none;
+}
+
+/* Barre « Acheter ×1 / ×10 / ×100 / Max » */
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  margin: 2px 0 10px;
+  color: var(--muted);
+}
+
+.seg {
+  display: inline-flex;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.seg button {
+  padding: 5px 12px;
+  border: 0;
+  background: var(--surface);
+  font-weight: 700;
+}
+
+.seg button + button {
+  border-left: 1px solid var(--line);
+}
+
+.seg button[aria-pressed="true"] {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+
+/* ==========================================================================
+   7. Éléments de liste (bâtiments, améliorations, boutique de jade)
+   ========================================================================== */
+
+.list {
+  display: grid;
+  gap: 8px;
+}
+
+.item {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-width: 0;
+  padding: 10px 12px;
+  text-align: left;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  transition: transform 0.08s, border-color 0.15s;
+}
+
+.item:hover {
+  border-color: var(--accent);
+}
+
+.item:active {
+  transform: scale(0.99);
+}
+
+.upgrade-card {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.upgrade-actions {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.upgrade-action {
+  padding: 6px 9px;
+  font-size: 13px;
+}
+
+.upgrade-action.warn {
+  color: var(--danger);
+}
+
+/* États d'un élément */
+.item.poor {
+  opacity: 0.6;
+}
+
+.item.locked {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.item.owned {
+  border-style: dashed;
+  opacity: 0.9;
+  cursor: default;
+}
+
+.premium-item {
+  align-items: center;
+}
+
+.premium-buy {
+  flex: 0 0 auto;
+}
+
+.premium-status.error {
+  color: var(--danger);
+}
+
+/* Partie gauche : nom, description, production */
+.i-main {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+.i-name {
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.i-desc {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.i-prod {
+  color: var(--jade);
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Partie droite : quantité et coût */
+.i-side {
+  display: grid;
+  justify-items: end;
+  gap: 2px;
+  flex: 0 0 auto;
+  text-align: right;
+}
+
+.i-count {
+  font-family: var(--font-display);
+  font-size: 26px;
+  line-height: 1;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.i-cost {
+  font-weight: 700;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+}
+
+.item.poor .i-cost {
+  color: var(--danger);
+}
+
+.i-cost.jade {
+  color: var(--jade);
+}
+
+
+/* ==========================================================================
+   8. Succès, stats, réglages
+   ========================================================================== */
+
+.note {
+  margin: 0 0 10px;
+  color: var(--muted);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.chip {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--bg2);
+  font-size: 12.5px;
+}
+
+/* Succès */
+.ach-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 8px;
+}
+
+.ach {
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.ach b {
+  display: block;
+}
+
+.ach span {
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+.ach.off {
+  opacity: 0.38;
+}
+
+.ach.on {
+  border-color: var(--accent);
+}
+
+/* Succès légendaire : doré une fois obtenu */
+.ach.legendary.on {
+  border-color: var(--gold);
+  background: linear-gradient(135deg, var(--surface), var(--bg2));
+  box-shadow: 0 0 12px var(--gold);
+}
+
+.ach.legendary.on b {
+  color: var(--gold);
+}
+
+/* Statistiques */
+.stat-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-table td {
+  padding: 7px 4px;
+  border-bottom: 1px solid var(--line);
+}
+
+.stat-table td:last-child {
+  text-align: right;
+  font-weight: 700;
+}
+
+/* Réincarnation */
+.meter {
+  height: 10px;
+  margin: 6px 0 12px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--bg2);
+}
+
+.meter i {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: var(--jade);
+}
+
+.big {
+  font-family: var(--font-display);
+  font-size: 34px;
+  line-height: 1;
+  color: var(--jade);
+}
+
+
+/* ==========================================================================
+   9. Boutons et formulaires
+   ========================================================================== */
+
+.btn {
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  font-weight: 700;
+}
+
+.btn.primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-color: var(--accent);
+}
+
+.btn.jade {
+  background: var(--jade);
+  color: #fff;
+  border-color: var(--jade);
+}
+
+/* Bouton « dangereux » : passe en rouge une fois armé (confirmation) */
+.btn.warn.armed {
+  background: var(--danger);
+  color: #fff;
+  border-color: var(--danger);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+label.opt {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 4px 0;
+}
+
+textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+  font: 12px/1.3 ui-monospace, Menlo, monospace;
+}
+
+
+/* ==========================================================================
+   10. Panda doré et notifications
+   ========================================================================== */
+
+.golden {
+  position: fixed;
+  z-index: 60;
+  width: 92px;
+  height: 92px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  filter: drop-shadow(0 0 14px var(--gold));
+  animation: floaty 2.4s ease-in-out infinite, appear 0.4s ease-out;
+}
+
+.golden svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+@keyframes floaty {
+  50% { transform: translateY(-12px) rotate(4deg); }
+}
+
+@keyframes appear {
+  from { opacity: 0; scale: 0.3; }
+}
+
+/* Notifications (toasts) */
+.toasts {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 80;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 0 16px calc(14px + env(safe-area-inset-bottom, 0px));
+  pointer-events: none;
+}
+
+.toast {
+  max-width: min(520px, 100%);
+  padding: 8px 14px;
+  border-radius: 12px;
+  background: var(--ink);
+  color: var(--bg);
+  font-weight: 500;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+  animation: toast 4.2s ease forwards;
+}
+
+@keyframes toast {
+  0%       { opacity: 0; transform: translateY(10px); }
+  8%, 88%  { opacity: 1; transform: none; }
+  100%     { opacity: 0; }
+}
+
+
+/* Cadres « succès débloqué » : en bas à gauche de l'écran */
+.ach-toasts {
+  position: fixed;
+  left: max(14px, env(safe-area-inset-left, 0px));
+  bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  z-index: 85;
+  display: grid;
+  gap: 8px;
+  max-width: min(320px, calc(100vw - 28px));
+  pointer-events: none;
+}
+
+.ach-toast {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 14px;
+  border: 2px solid var(--gold);
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+  animation: ach-toast 5s ease forwards;
+}
+
+.ach-toast-icon {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--gold);
+  color: #241a02;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.ach-toast-text {
+  display: grid;
+  min-width: 0;
+}
+
+.ach-toast-text span {
+  font-size: 12px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.ach-toast-text b {
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+
+.ach-toast.legendary {
+  box-shadow: 0 0 22px var(--gold), 0 6px 24px rgba(0, 0, 0, 0.25);
+  animation-duration: 8s;
+}
+
+@keyframes ach-toast {
+  0%       { opacity: 0; transform: translateX(-24px); }
+  8%, 88%  { opacity: 1; transform: none; }
+  100%     { opacity: 0; transform: translateX(-24px); }
+}
+
+
+/* ==========================================================================
+   11. Responsive et accessibilité
+   ========================================================================== */
+
+/* Grand écran : le panda reste visible pendant qu'on fait défiler la boutique */
+@media (min-width: 861px) {
+  .stage {
+    position: sticky;
+    top: calc(12px + env(safe-area-inset-top, 0px));
+  }
+}
+
+/* Petit écran : une seule colonne */
+@media (max-width: 860px) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .bank {
+    text-align: left;
+  }
+}
+
+@media (max-width: 560px) {
+  .upgrade-card {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .upgrade-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+/* Respect de la préférence « réduire les animations » */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001s !important;
+    animation-iteration-count: 1 !important;
+  }
+
+  #pBody,
+  .pupils,
+  .golden {
+    animation: none !important;
+  }
+}

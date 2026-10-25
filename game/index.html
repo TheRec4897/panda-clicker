@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Panda Clicker</title>
+  <link rel="icon" type="image/png" href="assets/panda-clicker.png">
+
+  <!-- Polices Google -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Figtree:wght@400;500;700&display=swap">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Décor d'arrière-plan -->
+  <div class="forest" aria-hidden="true"></div>
+  <canvas id="leaves" aria-hidden="true"></canvas>
+
+  <div class="app">
+
+    <!-- ===== En-tête : titre, actualités, banque de bambous ===== -->
+    <header class="top">
+      <div class="brand">
+        <h1>Panda Clicker</h1>
+        <p class="ticker" id="ticker"></p>
+        <!-- Réinitialisation complète (double confirmation, cf. scripts/events.js) -->
+        <button class="btn warn reset-btn" data-act="wipe">Reset</button>
+      </div>
+      <div class="bank">
+        <div class="bank-n" id="bank">0</div>
+        <div class="bank-l">bambous &middot; <b id="bps">0</b> par seconde</div>
+      </div>
+    </header>
+
+    <div class="grid">
+
+      <!-- ===== Colonne gauche : le panda ===== -->
+      <section class="stage" aria-label="Panda">
+        <div class="field" id="field">
+
+          <button id="panda" aria-label="Caresser le panda pour récolter du bambou">
+            <svg viewBox="0 0 300 320" role="img" aria-hidden="true">
+
+              <!-- Corps -->
+              <g id="pBody">
+                <!-- Pattes arrière -->
+                <ellipse class="pb" cx="82" cy="292" rx="40" ry="25"/>
+                <ellipse class="pb" cx="218" cy="292" rx="40" ry="25"/>
+                <!-- Ventre -->
+                <ellipse class="pw" cx="150" cy="255" rx="96" ry="64"/>
+                <!-- Bras -->
+                <ellipse class="pb" cx="62" cy="238" rx="24" ry="46" transform="rotate(18 62 238)"/>
+                <ellipse class="pb" cx="238" cy="238" rx="24" ry="46" transform="rotate(-18 238 238)"/>
+                <!-- Tige de bambou tenue dans les pattes -->
+                <rect x="66" y="246" width="168" height="17" rx="8.5" fill="#5da64a" stroke="#2f6a2b" stroke-width="2"/>
+                <path d="M110 246v17M150 246v17M190 246v17" stroke="#2f6a2b" stroke-width="2.5"/>
+                <path d="M226 248c18-10 34-8 44 2-14 8-32 8-44-2z" fill="#7cc65a" stroke="#2f6a2b" stroke-width="2"/>
+                <!-- Pattes avant -->
+                <circle class="pb" cx="84" cy="255" r="19"/>
+                <circle class="pb" cx="216" cy="255" r="19"/>
+              </g>
+
+              <!-- Tête -->
+              <g id="pHead">
+                <!-- Oreilles -->
+                <circle class="pb" cx="62" cy="78" r="34"/>
+                <circle class="pb" cx="238" cy="78" r="34"/>
+                <!-- Visage -->
+                <ellipse class="pw" cx="150" cy="146" rx="105" ry="88"/>
+                <!-- Taches autour des yeux -->
+                <ellipse class="pb" cx="104" cy="140" rx="22" ry="31" transform="rotate(25 104 140)"/>
+                <ellipse class="pb" cx="196" cy="140" rx="22" ry="31" transform="rotate(-25 196 140)"/>
+                <!-- Yeux -->
+                <circle cx="110" cy="136" r="8.5" fill="#fff"/>
+                <circle cx="190" cy="136" r="8.5" fill="#fff"/>
+                <g class="pupils">
+                  <circle cx="111" cy="137" r="4.8" fill="#0c0f0d"/>
+                  <circle cx="189" cy="137" r="4.8" fill="#0c0f0d"/>
+                  <circle cx="112.6" cy="135" r="1.6" fill="#fff"/>
+                  <circle cx="190.6" cy="135" r="1.6" fill="#fff"/>
+                </g>
+                <!-- Joues -->
+                <circle cx="88" cy="180" r="13" fill="#f4a6a0" opacity=".38"/>
+                <circle cx="212" cy="180" r="13" fill="#f4a6a0" opacity=".38"/>
+                <!-- Nez et bouche -->
+                <ellipse cx="150" cy="168" rx="14" ry="9.5" fill="#0c0f0d"/>
+                <path d="M150 178v7M150 185q-12 12-26 3M150 185q12 12 26 3" fill="none" stroke="#0c0f0d" stroke-width="3.2" stroke-linecap="round"/>
+              </g>
+
+              <!-- Accessoires (affichés selon les déblocages, cf. scripts/progression/unlocks.js) -->
+              <g id="acc-bow" display="none">
+                <path d="M150 226L112 208v36z" fill="#c0432f"/>
+                <path d="M150 226l38-18v36z" fill="#c0432f"/>
+                <circle cx="150" cy="226" r="9" fill="#8f2d1f"/>
+              </g>
+
+              <g id="acc-glasses" display="none">
+                <rect x="70" y="118" width="66" height="44" rx="17" fill="#101412"/>
+                <rect x="164" y="118" width="66" height="44" rx="17" fill="#101412"/>
+                <path d="M136 134h28" stroke="#101412" stroke-width="6"/>
+                <path d="M80 128l16-3" stroke="#fff" stroke-opacity=".45" stroke-width="4" stroke-linecap="round"/>
+                <path d="M174 128l16-3" stroke="#fff" stroke-opacity=".45" stroke-width="4" stroke-linecap="round"/>
+              </g>
+
+              <g id="acc-hat" display="none">
+                <ellipse cx="150" cy="64" rx="96" ry="16" fill="#e4c070" stroke="#a37a2b" stroke-width="3"/>
+                <path d="M96 62Q97 8 150 8Q203 8 204 62Z" fill="#edd08a" stroke="#a37a2b" stroke-width="3"/>
+                <path d="M97 50h106" stroke="#c0432f" stroke-width="9"/>
+              </g>
+
+              <g id="acc-crown" display="none">
+                <path d="M98 70L110 22l22 28 18-38 18 38 22-28 12 48z" fill="#3fd0b0" stroke="#127a64" stroke-width="3" stroke-linejoin="round"/>
+                <circle cx="150" cy="40" r="5" fill="#fff" opacity=".8"/>
+                <circle cx="116" cy="52" r="3.5" fill="#fff" opacity=".7"/>
+                <circle cx="184" cy="52" r="3.5" fill="#fff" opacity=".7"/>
+              </g>
+
+              <g id="acc-sakura" display="none" aria-label="Fleur de sakura">
+                <path d="M150 83c-18-21-8-32 0-28 8-4 18 7 0 28z" fill="#f3a2b8"/>
+                <path d="M150 83c-27-8-25-23-16-23 5-8 19-4 16 23z" fill="#f7c1ce"/>
+                <path d="M150 83c3-28 17-31 20-22 8 5 2 19-20 22z" fill="#f7c1ce"/>
+                <path d="M150 83c-20 18-31 8-26 0-2-9 12-17 26 0z" fill="#f3a2b8"/>
+                <path d="M150 83c20 18 31 8 26 0 2-9-12-17-26 0z" fill="#f3a2b8"/>
+                <circle cx="150" cy="80" r="5" fill="#e2ae48"/>
+              </g>
+
+            </svg>
+          </button>
+
+          <!-- Bonus temporaires (frénésies du panda doré) -->
+          <div class="buffs" id="buffs" aria-live="polite"></div>
+        </div>
+
+        <!-- Compteurs -->
+        <div class="readout">
+          <div><span>Par clic</span><b id="perClick">1</b></div>
+          <div><span>Multiplicateur</span><b id="mult">×1</b></div>
+          <div><span>Jade</span><b id="jadeR">0</b></div>
+        </div>
+      </section>
+
+      <!-- ===== Colonne droite : boutique à onglets ===== -->
+      <section class="panel" aria-label="Boutique">
+
+        <div class="tabs" role="tablist" id="tabs">
+          <button class="tab" role="tab" data-tab="shop"  aria-selected="true">Bâtiments</button>
+          <button class="tab" role="tab" data-tab="up"    aria-selected="false">Améliorations<span class="n" id="upN"></span></button>
+          <button class="tab" role="tab" data-tab="ach"   aria-selected="false">Succès</button>
+          <button class="tab" role="tab" data-tab="jade"  aria-selected="false">Réincarnation<span class="n" id="jadeN"></span></button>
+          <button class="tab" role="tab" data-tab="premium" aria-selected="false">Boutique premium</button>
+          <button class="tab" role="tab" data-tab="stats" aria-selected="false">Stats</button>
+          <button class="tab" role="tab" data-tab="opt"   aria-selected="false">Réglages</button>
+        </div>
+
+        <!-- Onglet Bâtiments -->
+        <div id="p-shop" role="tabpanel">
+          <div class="bar">
+            <span>Acheter</span>
+            <span class="seg" id="modes">
+              <button data-mode="1"   aria-pressed="true">×1</button>
+              <button data-mode="10"  aria-pressed="false">×10</button>
+              <button data-mode="100" aria-pressed="false">×100</button>
+              <button data-mode="max" aria-pressed="false">Max</button>
+            </span>
+          </div>
+          <div class="list" id="bList"></div>
+        </div>
+
+        <!-- Autres onglets : contenu généré par les scripts de l'interface -->
+        <div id="p-up"    role="tabpanel" hidden></div>
+        <div id="p-ach"   role="tabpanel" hidden></div>
+        <div id="p-jade"  role="tabpanel" hidden></div>
+        <div id="p-premium" role="tabpanel" hidden></div>
+        <div id="p-stats" role="tabpanel" hidden></div>
+        <div id="p-opt"   role="tabpanel" hidden></div>
+
+      </section>
+    </div>
+  </div>
+
+  <!-- Notifications -->
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+
+  <!-- Cadres « succès débloqué » (bas gauche de l'écran) -->
+  <div class="ach-toasts" id="achToasts" aria-live="polite"></div>
+
+  <script src="scripts/core.js"></script>
+  <script src="scripts/buildings/catalog.js"></script>
+  <script src="scripts/upgrades/catalog.js"></script>
+  <script src="scripts/progression/catalog.js"></script>
+  <script src="scripts/state.js"></script>
+  <script src="scripts/production.js"></script>
+  <script src="scripts/buffs/temporary-buffs.js"></script>
+  <script src="scripts/buffs/bamboo-frenzy.js"></script>
+  <script src="scripts/buffs/lucky-bamboo.js"></script>
+  <script src="scripts/buffs/click-frenzy.js"></script>
+  <script src="scripts/buildings/shop.js"></script>
+  <script src="scripts/upgrades/shop.js"></script>
+  <script src="scripts/ui/render.js"></script>
+  <script src="scripts/clicks/panda.js"></script>
+  <script src="scripts/buffs/golden-panda.js"></script>
+  <script src="scripts/progression/unlocks.js"></script>
+  <script src="scripts/ui/notifications.js"></script>
+  <script src="scripts/effects/leaves.js"></script>
+  <script src="scripts/premium-store.js"></script>
+  <script src="scripts/events.js"></script>
+  <script src="scripts/game-loop.js"></script>
+</body>
+</html>

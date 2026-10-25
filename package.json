@@ -1,0 +1,41 @@
+{
+  "name": "panda-clicker",
+  "version": "1.0.0",
+  "description": "Panda Clicker — jeu incrémental de panda et de bambou",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "payments:start": "npm --prefix payments start"
+  },
+  "discordClientId": "1563691788311597166",
+  "paymentApiUrl": "",
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.example.pandaclicker",
+    "productName": "Panda Clicker",
+    "files": [
+      "main.js",
+      "preload.js",
+      "game/**/*"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "game/assets/panda-clicker.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "game/assets/panda-clicker.icns"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "game/assets/panda-clicker.png"
+    }
+  },
+  "dependencies": {
+    "discord-rpc": "^4.0.1"
+  }
+}
