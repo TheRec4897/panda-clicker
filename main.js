@@ -3,11 +3,12 @@
    Ce fichier ouvre une fenêtre et y charge le jeu (dossier game/).
    ========================================================================== */
 
-const { app, BrowserWindow, Menu, ipcMain, shell } = require('electron');
+const { app, BrowserWindow, Menu, ipcMain, shell, dialog } = require('electron');
 const fs = require('fs');
 const path = require('path');
 const { randomUUID } = require('crypto');
 const DiscordRPC = require('discord-rpc');
+const { autoUpdater } = require('electron-updater');
 
 /* ---------- Achats Stripe ---------- */
 
@@ -222,8 +223,38 @@ function createWindow() {
   win.loadFile(path.join(__dirname, 'game', 'index.html'));
 }
 
+function checkForUpdates() {
+  if (!app.isPackaged) return;
+
+  autoUpdater.on('error', (error) => {
+    console.error('Erreur de mise à jour :', error);
+  });
+
+  autoUpdater.on('update-downloaded', async () => {
+    try {
+      const result = await dialog.showMessageBox({
+        type: 'info',
+        buttons: ['Redémarrer maintenant', 'Plus tard'],
+        defaultId: 0,
+        cancelId: 1,
+        title: 'Mise à jour prête',
+        message: 'La mise à jour est téléchargée. Redémarrer le jeu pour l’installer ?'
+      });
+
+      if (result.response === 0) autoUpdater.quitAndInstall();
+    } catch (error) {
+      console.error('Impossible d’afficher la demande de redémarrage :', error);
+    }
+  });
+
+  autoUpdater.checkForUpdates().catch((error) => {
+    console.error('Vérification des mises à jour impossible :', error);
+  });
+}
+
 app.whenReady().then(() => {
   createWindow();
+  checkForUpdates();
   startDiscordPresence();
 
   // macOS : recréer la fenêtre si on clique sur l'icône du Dock
