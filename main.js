@@ -237,8 +237,8 @@ function checkForUpdates() {
         buttons: ['Redémarrer maintenant', 'Plus tard'],
         defaultId: 0,
         cancelId: 1,
-        title: 'Mise à jour prête',
-        message: 'La mise à jour est téléchargée. Redémarrer le jeu pour l’installer ?'
+        title: 'Mise à jour détéctée',
+        message: 'Une mise à jour est téléchargée. Redémarrer le jeu pour l’installer ?'
       });
 
       if (result.response === 0) autoUpdater.quitAndInstall();

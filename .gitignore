@@ -1,4 +1,4 @@
 node_modules
-payments
+payments/node_modules
 dist
 .env
