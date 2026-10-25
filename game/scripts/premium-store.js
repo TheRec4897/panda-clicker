@@ -60,7 +60,7 @@ function isPremiumProductOwned(productId, product) {
 function renderPremiumTab() {
   const panel = $('#p-premium');
   panel.innerHTML =
-    '<h2>Boutique premium</h2>' +
+    '<h2>Boutique</h2>' +
     '<p class="note">Les paiements sont traités par Stripe dans ton navigateur. Les achats restent liés à cette installation.</p>' +
     '<p class="note premium-status" id="premium-status" role="status">Connexion à la boutique…</p>' +
     '<div class="row"><button class="btn" data-act="storeSync">Restaurer mes achats</button></div>' +
