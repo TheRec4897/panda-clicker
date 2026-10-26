@@ -408,6 +408,13 @@ h1 {
   background: var(--bg2);
 }
 
+.readout .readout-rate {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .readout span {
   display: block;
   font-size: 12px;
@@ -731,7 +738,7 @@ h1 {
   font-weight: 700;
 }
 
-/* Réincarnation */
+/* Progression du jade */
 .meter {
   height: 10px;
   margin: 6px 0 12px;

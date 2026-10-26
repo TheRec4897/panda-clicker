@@ -1,16 +1,15 @@
 'use strict';
 
 const JADE_UPGRADES = [
-  { id: 'start',   name: 'Provisions de voyage',   cost: 1,  desc: 'Chaque cycle commence avec 1 000 bambous.' },
-  { id: 'g1',      name: 'Œil de lynx',            cost: 2,  desc: 'Le panda doré apparaît 25 % plus souvent.' },
-  { id: 'g2',      name: 'Aura persistante',       cost: 3,  desc: 'Le panda doré reste 50 % plus longtemps et ses frénésies durent 25 % de plus.' },
-  { id: 'off',     name: 'Sommeil productif',      cost: 4,  desc: 'Hors ligne, les pandas travaillent à 50 % (8 h maximum).' },
-  { id: 'click',   name: 'Patte de jade',          cost: 5,  desc: 'Tes clics rapportent deux fois plus.' },
-  { id: 'babies',  name: 'Nurserie céleste',       cost: 6,  desc: 'Chaque cycle commence avec 10 bébés pandas.' },
-  { id: 'prod',    name: 'Bénédiction de la forêt', cost: 10, desc: 'Production globale ×1,25.' },
-  { id: 'cost',    name: 'Marchandage zen',        cost: 15, desc: 'Les bâtiments coûtent 5 % moins cher.' },
-  { id: 'lucky',   name: 'Pluie dorée',            cost: 25, desc: 'Les gains « chance » du panda doré sont doublés.' },
-  { id: 'prod2',   name: 'Âge d’or',               cost: 50, desc: 'Production globale ×1,5.' }
+  { id: 'g1',      name: 'Œil de lynx',            cost: 1,  desc: 'Le panda doré apparaît 25 % plus souvent.' },
+  { id: 'g2',      name: 'Aura persistante',       cost: 2,  desc: 'Le panda doré reste 50 % plus longtemps et ses frénésies durent 25 % de plus.' },
+  { id: 'off',     name: 'Sommeil productif',      cost: 3,  desc: 'Hors ligne, les pandas travaillent à 50 % (8 h maximum).' },
+  { id: 'click',   name: 'Patte de jade',          cost: 4,  desc: 'Tes clics rapportent 5 fois plus.' },
+  { id: 'babies',  name: 'Nurserie céleste',       cost: 5,  desc: 'À l’achat, reçoit immédiatement 1 000 bébés pandas.' },
+  { id: 'prod',    name: 'Bénédiction de la forêt', cost: 6, desc: 'Production globale ×5.' },
+  { id: 'cost',    name: 'Marchandage zen',        cost: 7, desc: 'Les bâtiments coûtent 15% moins cher.' },
+  { id: 'lucky',   name: 'Pluie dorée',            cost: 8, desc: 'Les gains « chance » du panda doré sont doublés.' },
+  { id: 'prod2',   name: 'Âge d’or',               cost: 9, desc: 'Production globale ×10.' }
 ];
 
 
@@ -71,16 +70,16 @@ const addAchievement = (id, name, desc, test, extra) =>
     () => state.golden >= x);
 });
 
-// Réincarnations
+// Jade gagné
 [
-  [1,  'Premier cycle'],
-  [5,  'Samsara'],
-  [10, 'Maître du karma']
+  [1,  'Éclat de jade'],
+  [5,  'Trésor de jade'],
+  [10, 'Maître du jade']
 ].forEach(([x, name]) => {
-  addAchievement('a' + x, name, 'Se réincarner ' + x + ' fois.', () => state.asc >= x);
+  addAchievement('j' + x, name, 'Gagner ' + x + ' jade au total.', () => state.jadeTotal >= x);
 });
 
-// Améliorations achetées pendant un cycle
+// Améliorations achetées
 [
   [1,   'Premier achat'],
   [10,  'Collectionneur'],
@@ -89,7 +88,7 @@ const addAchievement = (id, name, desc, test, extra) =>
   [100, 'Tout est amélioré']
 ].forEach(([x, name]) => {
   addAchievement('u' + x, name,
-    'Acheter ' + x + ' amélioration' + (x > 1 ? 's' : '') + ' au cours d’un cycle.',
+    'Acheter ' + x + ' amélioration' + (x > 1 ? 's' : '') + '.',
     () => state.upgradesBought >= x);
 });
 
@@ -130,7 +129,7 @@ const ACCESSORIES = [
   { id: 'hat',     name: 'Chapeau de paille', condition: 'Récolter 10 000 bambous',              test: () => state.all >= 1e4 },
   { id: 'glasses', name: 'Lunettes de soleil', condition: 'Atteindre 1 000 bambous par seconde', test: () => calc.bps >= 1e3 },
   { id: 'bow',     name: 'Nœud papillon',      condition: 'Récolter 1 million de bambous',       test: () => state.all >= 1e6 },
-  { id: 'crown',   name: 'Couronne de jade',   condition: 'Se réincarner une fois',              test: () => state.asc >= 1 },
+  { id: 'crown',   name: 'Couronne de jade',   condition: 'Gagner 1 jade',                        test: () => state.jadeTotal >= 1 },
   { id: 'sakura',  name: 'Fleur de sakura',   condition: 'Boutique premium',                    test: () => false }
 ];
 
@@ -146,7 +145,7 @@ const NEWS = [
   () => 'Un hibou propose de surveiller la forêt contre un salaire en glands.',
   () => state.b[0] >= 10   ? 'Tes bébés pandas ont formé un syndicat de la sieste.' : null,
   () => calc.bps > 1000    ? 'La forêt bruisse jusqu’à l’autre bout de la vallée.' : null,
-  () => state.asc > 0      ? 'Dans une autre vie, tu étais déjà le roi du bambou.' : null,
+  () => state.jadeTotal > 0 ? 'Le jade te va bien. Tu es le roi du bambou.' : null,
   () => state.b[6] > 0     ? 'Les moines affirment que le vrai bambou est dans notre cœur. Ils en demandent quand même.' : null,
   () => state.b[11] > 0    ? 'Un panda du futur te dit de ne pas arrêter de cliquer.' : null,
   () => state.golden > 0   ? 'Rumeur : un panda doré se cacherait dans la forêt.' : null

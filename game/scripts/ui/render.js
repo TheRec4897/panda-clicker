@@ -36,6 +36,7 @@ function updateHUD() {
   $('#bps').textContent = fmt(calc.bps, true);
   $('#perClick').textContent = fmt(calc.click, true);
   $('#mult').textContent = '×' + fmt(calc.mult, true);
+  $('#clickRate').textContent = fmt(calc.autoClicks + state.paid.autoClicks, true);
   $('#jadeR').textContent = fmt(state.jade);
 
   updateBuildingRows();
@@ -56,10 +57,6 @@ function updateHUD() {
   $('#buffs').innerHTML = buffs
     .map((buff) => '<span class="buff">' + buff.name + ' · ' + Math.ceil((buff.until - now) / 1000) + ' s</span>')
     .join('');
-
-  // Pastille de l'onglet Réincarnation
-  const jadeGain = prestigeGain();
-  $('#jadeN').textContent = jadeGain > 0 ? '+' + fmt(jadeGain) : '';
 
   if (currentTab === 'jade') updateJadeLive();
   if (currentTab === 'stats') renderStatsTab();
@@ -92,8 +89,14 @@ function updateBuildingRows() {
     nameEl.textContent = locked ? '???' : building.name;
     descEl.textContent = locked ? 'Continue de récolter pour le découvrir.' : building.desc;
 
-    if (locked || state.b[i] === 0) {
-      prodEl.textContent = locked ? '' : 'Produit ' + fmt(calc.unit[i], true) + ' par seconde chacun.';
+    if (locked) {
+      prodEl.textContent = '';
+    } else if (building.clicksPerSecond) {
+      const clicksPerSecond = state.b[i] * building.clicksPerSecond;
+      prodEl.textContent = 'Effectue 1 clic toutes les 10 secondes chacun · total '
+                         + fmt(clicksPerSecond, true) + ' clic/s';
+    } else if (state.b[i] === 0) {
+      prodEl.textContent = 'Produit ' + fmt(calc.unit[i], true) + ' par seconde chacun.';
     } else {
       const total = state.b[i] * calc.unit[i];
       const percent = calc.base > 0 ? Math.round(total / calc.base * 100) : 0;
@@ -190,7 +193,7 @@ function renderUpgradesTab() {
 /* ----- Onglet Succès ----- */
 
 function renderAchievementsTab() {
-  const count = Object.keys(state.a).length;
+  const count = ACHIEVEMENTS.filter((a) => state.a[a.id]).length;
 
   $('#p-ach').innerHTML =
     '<p class="note"><b>' + count + ' / ' + ACHIEVEMENTS.length + '</b> succès débloqués.</p>' +
@@ -210,9 +213,9 @@ function renderAchievementsTab() {
 
 function renderStatsTab() {
   const totalBuildings = state.b.reduce((sum, n) => sum + n, 0);
+  const achievementCount = ACHIEVEMENTS.filter((a) => state.a[a.id]).length;
   const rows = [
     ['Bambous en banque',           fmt(state.bamboo)],
-    ['Bambous récoltés ce cycle',   fmt(state.run)],
     ['Bambous récoltés au total',   fmt(state.all)],
     ['Production par seconde',      fmt(calc.bps, true)],
     ['Valeur d’un clic',            fmt(calc.click, true)],
@@ -220,13 +223,11 @@ function renderStatsTab() {
     ['Pandas dorés attrapés',       fmt(state.golden)],
     ['Bâtiments possédés',          fmt(totalBuildings)],
     ['Améliorations possédées',     Object.keys(state.u).length + ' / ' + UPGRADES.length],
-    ['Clics automatiques par seconde', fmt(state.paid.autoClicks, true)],
+    ['Clics automatiques par seconde', fmt(calc.autoClicks + state.paid.autoClicks, true)],
     ['Multiplicateurs premium',     '×' + fmt(Math.pow(2, state.paid.multiplierCount), true)],
-    ['Succès',                      Object.keys(state.a).length + ' / ' + ACHIEVEMENTS.length],
-    ['Réincarnations',              state.asc],
+    ['Succès',                      achievementCount + ' / ' + ACHIEVEMENTS.length],
     ['Jade gagné au total',         fmt(state.jadeTotal)],
-    ['Temps de jeu',                fmtTime(state.played)],
-    ['Durée de ce cycle',           fmtTime((Date.now() - state.runStart) / 1000)]
+    ['Temps de jeu',                fmtTime(state.played)]
   ];
 
   $('#p-stats').innerHTML =
@@ -235,7 +236,7 @@ function renderStatsTab() {
     '</table>';
 }
 
-/* ----- Onglet Réincarnation ----- */
+/* ----- Boutique de jade ----- */
 
 function renderJadeTab() {
   const shopHTML = JADE_UPGRADES.map((p) => {
@@ -250,43 +251,36 @@ function renderJadeTab() {
   }).join('');
 
   $('#p-jade').innerHTML =
-    '<h2>Réincarnation</h2>' +
-    '<p class="note">Réincarne ton panda pour gagner du <b>jade</b>. Chaque jade accumulé donne +2 % de production pour toujours, et se dépense dans la boutique ci-dessous. Le cycle repart de zéro : bambous, bâtiments et améliorations sont perdus. Succès, clics et jade restent.</p>' +
-    '<div class="big" id="jGain">0</div>' +
+    '<h2>Boutique de jade</h2>' +
+    '<p class="note">Gagne automatiquement du <b>jade</b> en atteignant des paliers de bambous récoltés au total. Chaque jade gagné augmente la production de 5 %.</p>' +
+    '<div class="big" id="jGain"></div>' +
     '<div class="note" id="jInfo"></div>' +
     '<div class="meter"><i id="jBar"></i></div>' +
-    '<div class="row">' +
-      '<button class="btn jade warn" id="ascBtn" data-act="ascend">Se réincarner</button>' +
-      '<span class="note" id="jMult"></span>' +
-    '</div>' +
-    '<h2>Boutique de jade <span class="note">(jade disponible : <b id="jAvail"></b>)</span></h2>' +
+    '<p class="note" id="jMult"></p>' +
+    '<h2>Améliorations permanentes <span class="note">(jade disponible : <b id="jAvail"></b>)</span></h2>' +
     '<div class="list">' + shopHTML + '</div>';
 
   updateJadeLive();
 }
 
-/** Met à jour les valeurs changeantes de l'onglet Réincarnation. */
+/** Met à jour les valeurs changeantes de la boutique de jade. */
 function updateJadeLive() {
   const gainEl = $('#jGain');
   if (!gainEl) return;
 
-  const gained = prestigeGain();
-  gainEl.textContent = '+' + fmt(gained) + ' jade';
+  const currentMilestone = jadeMilestonePotential();
+  const nextAt = Math.pow(currentMilestone + 1, 3) * 1e10;
+  const previousAt = Math.pow(currentMilestone, 3) * 1e10;
+  const progress = (state.all - previousAt) / (nextAt - previousAt) * 100;
 
-  const nextAt = Math.pow(state.jadeTotal + gained + 1, 3) * 1e10;
-  const prevAt = Math.pow(state.jadeTotal + gained, 3) * 1e10;
-  const progress = (state.all - prevAt) / (nextAt - prevAt) * 100;
-
-  $('#jInfo').textContent =
-    'Prochain jade à ' + fmt(nextAt) + ' bambous récoltés au total (il t’en manque ' +
-    fmt(Math.max(0, nextAt - state.all)) + ').';
+  gainEl.textContent = 'Jade gagné au total : ' + fmt(state.jadeTotal);
+  $('#jInfo').textContent = 'Prochain jade à ' + fmt(nextAt) +
+    ' bambous récoltés au total (il t’en manque ' + fmt(Math.max(0, nextAt - state.all)) + ').';
   $('#jBar').style.width = Math.max(0, Math.min(100, progress)) + '%';
-  $('#ascBtn').disabled = gained < 1;
-
-  const formatMult = (jade) => (1 + 0.02 * jade).toLocaleString('fr-FR', { maximumFractionDigits: 2 });
-  $('#jMult').textContent =
-    'Bonus actuel : ×' + formatMult(state.jadeTotal) + ' (' + fmt(state.jadeTotal) + ' jade). ' +
-    'Après : ×' + formatMult(state.jadeTotal + gained) + '.';
+  
+  const formatMult = (jade) => (1 + 0.05 * jade).toLocaleString('fr-FR', { maximumFractionDigits: 2 });
+  $('#jMult').textContent = 'Bonus de production actuel : ×' +
+    formatMult(state.jadeTotal) + ' (' + fmt(state.jadeTotal) + ' jade gagné).';
   $('#jAvail').textContent = fmt(state.jade);
 }
 

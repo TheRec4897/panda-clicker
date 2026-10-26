@@ -6,7 +6,7 @@
 
 /**
  * Vérifie les succès, les accessoires et les améliorations disponibles.
- * @param {boolean} silent pas de notification (chargement, réincarnation)
+ * @param {boolean} silent pas de notification (chargement)
  */
 function checkUnlocks(silent) {
   let achievementsChanged = false;
@@ -67,4 +67,3 @@ function applyAccessories() {
     }
   });
 }
-

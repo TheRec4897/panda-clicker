@@ -1,15 +1,15 @@
 # Panda Clicker
 
-Panda Clicker est un jeu : clique sur le panda pour récolter du bambou, développe ta production grâce à des bâtiments et des améliorations, puis réincarne-toi pour obtenir du jade et progresser plus vite au cycle suivant.
+Panda Clicker est un jeu : clique sur le panda pour récolter du bambou, développe ta production grâce à des bâtiments et des améliorations, puis gagne du jade en atteignant des paliers de récolte pour acheter des bonus permanents.
 
 ## Fonctionnalités
 
 - Récolte manuelle et production automatique de bambous.
-- 14 bâtiments à acheter, avec des coûts croissants et plusieurs modes d’achat.
+- 16 bâtiments à acheter, avec des coûts croissants et plusieurs modes d’achat.
 - Améliorations de clic, de production globale et de bâtiments.
 - Pandas dorés qui accordent des bonus temporaires ou des bambous.
 - Succès, accessoires à débloquer et statistiques de progression.
-- Réincarnation et boutique permanente de jade.
+- Paliers de récolte qui accordent du jade et boutique permanente de jade.
 - Sauvegarde automatique, export et import de sauvegarde.
 - Progression hors ligne, avec une limite de durée.
 - Présence Discord et mises à jour intégrées dans l’application de bureau.
@@ -22,15 +22,13 @@ Panda Clicker est un jeu : clique sur le panda pour récolter du bambou, dévelo
 3. Achète des **Améliorations** pour renforcer tes clics et tes bâtiments. Certaines apparaissent lorsque tu progresses ou possèdes assez d’exemplaires du bâtiment concerné.
 4. Clique sur le panda doré quand il apparaît : il peut déclencher une frénésie de production, une frénésie de clics ou un gain de bambous.
 5. Consulte les onglets **Succès** et **Stats** pour suivre ta progression et débloquer des accessoires.
-6. Quand tu as accumulé suffisamment de bambous au total, réincarne-toi depuis l’onglet **Réincarnation** pour gagner du jade.
+6. Récolte des bambous pour atteindre les paliers qui accordent automatiquement du jade, puis dépense-le dans l’onglet **Boutique Jade**.
 
-### Réincarnation et jade
+### Jade
 
-La réincarnation remet à zéro les bambous du cycle, les bâtiments et les améliorations de bambou. Les succès, les clics, le jade et les améliorations de jade sont conservés. Chaque jade accumulé augmente de façon permanente la production de 2 %.
+Le jade est accordé automatiquement selon le total de bambous récoltés. Les paliers suivent la progression cubique : 1 jade à 1 milliards de bambous, 2 à 8 milliards, puis 3 à 27 milliards, etc. Chaque jade gagné augmente la production de 5 %.
 
-Le jade gagné dépend du nombre total de bambous récoltés :
-
-La boutique de jade propose des bonus permanents : bambous ou bébés pandas au début d’un cycle, amélioration des clics, de la production ou du taux d’apparition du panda doré, réduction du coût des bâtiments et production hors ligne améliorée.
+La boutique de jade propose des bonus permanents : un apport immédiat de bébés pandas, amélioration des clics, de la production ou du taux d’apparition du panda doré, réduction du coût des bâtiments et production hors ligne améliorée.
 
 ### Production hors ligne
 

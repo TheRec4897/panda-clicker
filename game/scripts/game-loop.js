@@ -6,6 +6,7 @@
 
 let lastTickAt = Date.now();
 let checkTimer = 0; // accumule le temps entre deux vérifications de succès
+let buildingAutoClickProgress = 0;
 
 function tick() {
   const now = Date.now();
@@ -14,11 +15,20 @@ function tick() {
   if (dt <= 0) return;
 
   // Production et temps de jeu
-  gain(calc.bps * Math.min(dt, MAX_TICK_SECONDS));
+  const elapsed = Math.min(dt, MAX_TICK_SECONDS);
+  gain(calc.bps * elapsed);
+
+  buildingAutoClickProgress += calc.autoClicks * elapsed;
+  const buildingAutoClicks = Math.floor(buildingAutoClickProgress + 1e-9);
+  buildingAutoClickProgress = Math.max(0, buildingAutoClickProgress - buildingAutoClicks);
+  for (let i = 0; i < buildingAutoClicks; i++) {
+    doClick(null, null);
+  }
+
   if (state.paid.autoClicks > 0) {
-    const autoClicks = state.paid.autoClicks * Math.min(dt, MAX_TICK_SECONDS);
-    gain(calc.click * autoClicks);
-    state.clicks += autoClicks;
+    const paidAutoClicks = state.paid.autoClicks * elapsed;
+    gain(calc.click * paidAutoClicks);
+    state.clicks += paidAutoClicks;
   }
   state.played += dt;
 
@@ -45,7 +55,7 @@ function tick() {
 /** Gains hors ligne depuis la dernière sauvegarde. */
 function applyOfflineProgress() {
   const elapsed = (Date.now() - state.last) / 1000;
-  const autoClickRate = calc.click * state.paid.autoClicks;
+  const autoClickRate = calc.click * (calc.autoClicks + state.paid.autoClicks);
   if (elapsed <= 60 || (calc.bps <= 0 && autoClickRate <= 0)) return;
 
   const cap = state.pu.off ? 28800 : 7200;            // 8 h ou 2 h
@@ -54,7 +64,7 @@ function applyOfflineProgress() {
   const earned = (calc.bps + autoClickRate) * effectiveSeconds;
 
   gain(earned);
-  state.clicks += state.paid.autoClicks * effectiveSeconds;
+  state.clicks += (calc.autoClicks + state.paid.autoClicks) * effectiveSeconds;
   setTimeout(() => {
     toast('Pendant ton absence (' + fmtTime(elapsed) + '), les pandas ont récolté ' + fmt(earned) + ' bambous.');
   }, 600);

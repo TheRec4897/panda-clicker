@@ -7,6 +7,7 @@ const calc = {
   mult: 1,                         // multiplicateur affiché
   mulBase: 1,                      // multiplicateur global permanent
   costMult: 1,                     // réduction du coût des bâtiments
+  autoClicks: 0,                   // clics automatiques par seconde des bâtiments
   unit: BUILDINGS.map(() => 0)     // production d'un exemplaire de chaque bâtiment
 };
 
@@ -28,13 +29,13 @@ function recalc() {
   }
 
   // Achats de jade
-  if (state.pu.click) clickMult *= 2;
-  if (state.pu.prod)  globalMult *= 1.25;
-  if (state.pu.prod2) globalMult *= 1.5;
-  calc.costMult = state.pu.cost ? 0.95 : 1;
+  if (state.pu.click) clickMult *= 5;
+  if (state.pu.prod)  globalMult *= 5;
+  if (state.pu.prod2) globalMult *= 10;
+  calc.costMult = state.pu.cost ? 0.85 : 1;
 
   // Bonus lié au jade
-  const jadeMult = 1 + 0.02 * state.jadeTotal;
+  const jadeMult = 1 + 0.05 * state.jadeTotal;
   calc.mulBase = globalMult * jadeMult * Math.pow(2, state.paid.multiplierCount);
 
   // Bonus temporaires (frénésies)
@@ -47,9 +48,11 @@ function recalc() {
 
   // Production
   let base = 0;
+  calc.autoClicks = 0;
   BUILDINGS.forEach((building, i) => {
     calc.unit[i] = building.cps * buildingMult[i] * calc.mulBase;
     base += state.b[i] * calc.unit[i];
+    calc.autoClicks += state.b[i] * (building.clicksPerSecond || 0);
   });
   calc.base = base;
   calc.bps = base * prodBuff;
@@ -59,19 +62,24 @@ function recalc() {
   calc.mult = calc.mulBase * prodBuff;
 }
 
-/** Ajoute des bambous (banque, cycle en cours, total). */
+/** Ajoute des bambous et attribue automatiquement le jade des nouveaux paliers. */
 function gain(amount) {
   state.bamboo += amount;
-  state.run += amount;
   state.all += amount;
+  awardJadeMilestones();
 }
 
 /** Jade total auquel le joueur a droit d'après ses bambous récoltés. */
-function prestigePotential() {
-  return Math.floor(Math.cbrt(state.all / 1e10));
+function jadeMilestonePotential() {
+  return Math.floor(Math.cbrt(state.all / 1e9));
 }
 
-/** Jade que rapporterait une réincarnation maintenant. */
-function prestigeGain() {
-  return Math.max(0, prestigePotential() - state.jadeTotal);
+function awardJadeMilestones() {
+  const gained = jadeMilestonePotential() - state.jadeTotal;
+  if (gained <= 0) return;
+
+  state.jade += gained;
+  state.jadeTotal += gained;
+  recalc();
+  toast('Palier atteint : +' + fmt(gained) + ' jade.');
 }

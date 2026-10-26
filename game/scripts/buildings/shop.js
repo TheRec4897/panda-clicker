@@ -50,6 +50,7 @@ function buyJadeUpgrade(id) {
 
   state.jade -= up.cost;
   state.pu[id] = true;
+  if (id === 'babies') state.b[0] += 1000;
   recalc();
   beep(880, 0.12, 0.05);
   renderJadeTab();
@@ -59,33 +60,5 @@ function buyJadeUpgrade(id) {
 /** Une amélioration est visible quand on s'en approche ou qu'on a assez de bâtiments. */
 function isUpgradeUnlocked(up) {
   if (up.type === 'b') return state.b[up.building] >= up.needed;
-  return state.run >= up.cost * 0.1 || state.bamboo >= up.cost * 0.5;
-}
-
-/** Réincarnation : remet le cycle à zéro contre du jade. */
-function ascend() {
-  const gained = prestigeGain();
-  if (gained < 1) return;
-
-  state.jade += gained;
-  state.jadeTotal += gained;
-  state.asc++;
-
-  state.bamboo = state.pu.start ? 1000 : 0;
-  state.run = 0;
-  state.b = BUILDINGS.map(() => 0);
-  if (state.pu.babies) state.b[0] = 10;
-  state.u = {};
-  state.upgradesBought = 0;
-  state.seen = 0;
-  state.runStart = Date.now();
-  buffs = [];
-  upgradesSignature = '';
-
-  recalc();
-  checkUnlocks(true);
-  saveState();
-  toast('Réincarnation ! +' + fmt(gained) + ' jade. Un nouveau cycle commence.');
-  renderJadeTab();
-  updateAll();
+  return state.all >= up.cost * 0.1 || state.bamboo >= up.cost * 0.5;
 }

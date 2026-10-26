@@ -1,6 +1,6 @@
 'use strict';
 
-/* ----- Améliorations (réinitialisées à chaque réincarnation) -----
+/* ----- Améliorations permanentes de bambou -----
    Types :
      click → clics ×1,5
      pct   → un % de la production par seconde est ajouté à chaque clic

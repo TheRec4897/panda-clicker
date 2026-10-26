@@ -59,15 +59,11 @@ function resetGame() {
   location.reload();
 }
 
-/** Actions des boutons de l'onglet Réglages / Réincarnation (attribut data-act). */
+/** Actions des boutons de l'onglet Réglages (attribut data-act). */
 function handleAction(action, button) {
   const io = $('#io');
 
   switch (action) {
-    case 'ascend':
-      armButton(button, 'Confirmer la réincarnation ?', ascend);
-      break;
-
     case 'save':
       saveState();
       toast('Partie sauvegardée.');
