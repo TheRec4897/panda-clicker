@@ -8,6 +8,7 @@ const calc = {
   mulBase: 1,                      // multiplicateur global permanent
   costMult: 1,                     // réduction du coût des bâtiments
   autoClicks: 0,                   // clics automatiques par seconde des bâtiments
+  autoClickUnit: BUILDINGS.map(() => 0), // clics automatiques par seconde par bâtiment
   unit: BUILDINGS.map(() => 0)     // production d'un exemplaire de chaque bâtiment
 };
 
@@ -16,16 +17,18 @@ function recalc() {
   let clickPct = 0;                            // part de la production ajoutée au clic
   let globalMult = 1;                          // multiplicateur de production globale
   const buildingMult = BUILDINGS.map(() => 1); // multiplicateur par bâtiment
+  const buildingClickMult = BUILDINGS.map(() => 1);
 
   // Améliorations achetées
   for (const id in state.u) {
     const up = UPGRADE_BY_ID[id];
     if (!up) continue;
     const level = state.u[id] === true ? 1 : state.u[id];
-    if (up.type === 'click')     clickMult *= Math.pow(1.5, level);
+    if (up.type === 'click')     clickMult *= Math.pow(up.value, level);
     else if (up.type === 'pct')  clickPct += up.value * level;
     else if (up.type === 'glob') globalMult *= Math.pow(up.value, level);
-    else if (up.type === 'b')    buildingMult[up.building] *= Math.pow(1.5, level);
+    else if (up.type === 'b')    buildingMult[up.building] *= Math.pow(up.value, level);
+    else if (up.type === 'bClick') buildingClickMult[up.building] *= Math.pow(up.value, level);
   }
 
   // Achats de jade
@@ -52,13 +55,15 @@ function recalc() {
   BUILDINGS.forEach((building, i) => {
     calc.unit[i] = building.cps * buildingMult[i] * calc.mulBase;
     base += state.b[i] * calc.unit[i];
-    calc.autoClicks += state.b[i] * (building.clicksPerSecond || 0);
+    calc.autoClickUnit[i] = (building.clicksPerSecond || 0) * buildingClickMult[i];
+    calc.autoClicks += state.b[i] * calc.autoClickUnit[i];
   });
   calc.base = base;
   calc.bps = base * prodBuff;
 
   // Clic
   calc.click = (clickMult + clickPct * calc.bps) * jadeMult * clickBuff;
+  if (state.pu.click_bamboo) calc.click += 1e12;
   calc.mult = calc.mulBase * prodBuff;
 }
 

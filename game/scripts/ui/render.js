@@ -24,6 +24,7 @@ const buildingRows = [...buildingList.children];
 let currentTab = 'shop';
 let upgradesSignature = ''; // sert à ne re-rendre l'onglet Améliorations que s'il change
 let lastPresenceBambooCount = null;
+let ownedBuildingsSignature = '';
 
 /** Met à jour tout ce qui change en continu : compteurs, bâtiments, bonus. */
 function updateHUD() {
@@ -40,13 +41,14 @@ function updateHUD() {
   $('#jadeR').textContent = fmt(state.jade);
 
   updateBuildingRows();
+  updateOwnedBuildings();
 
   // Teinte « trop cher » des améliorations affichées
   $$('#p-up .item[data-u]').forEach((el) => {
     el.classList.toggle('poor', state.bamboo < +el.dataset.cost);
   });
   $$('#p-up [data-u-action="improve"]').forEach((el) => {
-    el.disabled = state.bamboo < +el.dataset.cost;
+    el.disabled = Number(el.dataset.level) >= MAX_UPGRADE_LEVEL || state.bamboo < +el.dataset.cost;
   });
   $$('#p-jade .item[data-pu]').forEach((el) => {
     el.classList.toggle('poor', state.jade < +el.dataset.cost);
@@ -60,6 +62,34 @@ function updateHUD() {
 
   if (currentTab === 'jade') updateJadeLive();
   if (currentTab === 'stats') renderStatsTab();
+}
+
+function updateOwnedBuildings() {
+  const ownedBuildings = $('#ownedBuildings');
+  const signature = BUILDINGS
+    .filter((_, i) => state.b[i] > 0)
+    .map((building) => building.name)
+    .join(',');
+  ownedBuildings.hidden = signature === '';
+  if (signature === ownedBuildingsSignature) return;
+  ownedBuildingsSignature = signature;
+
+  const list = $('#ownedBuildingList');
+  list.replaceChildren();
+  BUILDINGS.forEach((building, i) => {
+    if (state.b[i] <= 0) return;
+
+    const item = document.createElement('li');
+    item.className = 'owned-building';
+    item.title = building.name;
+    item.setAttribute('aria-label', building.name);
+    const icon = document.createElement('span');
+    icon.className = 'owned-building-icon';
+    icon.setAttribute('aria-hidden', 'true');
+    icon.textContent = building.icon;
+    item.append(icon);
+    list.append(item);
+  });
 }
 
 function updateBuildingRows() {
@@ -92,9 +122,10 @@ function updateBuildingRows() {
     if (locked) {
       prodEl.textContent = '';
     } else if (building.clicksPerSecond) {
-      const clicksPerSecond = state.b[i] * building.clicksPerSecond;
-      prodEl.textContent = 'Effectue 1 clic toutes les 10 secondes chacun · total '
-                         + fmt(clicksPerSecond, true) + ' clic/s';
+      const clicksPerTenSeconds = calc.autoClickUnit[i] * 10;
+      const totalClicksPerTenSeconds = state.b[i] * clicksPerTenSeconds;
+      prodEl.textContent = 'Effectue ' + fmt(clicksPerTenSeconds, true) + ' clics/10 s chacun · total '
+                         + fmt(totalClicksPerTenSeconds, true) + ' clics/10 s';
     } else if (state.b[i] === 0) {
       prodEl.textContent = 'Produit ' + fmt(calc.unit[i], true) + ' par seconde chacun.';
     } else {
@@ -151,6 +182,7 @@ function upgradeItemHTML(up) {
 
 function ownedUpgradeHTML(up) {
   const level = upgradeLevel(up.id);
+  const maxed = level >= MAX_UPGRADE_LEVEL;
   const cost = upgradeLevelCost(up, level);
   const refund = upgradeSaleValue(up, level);
   return '<article class="upgrade-card">' +
@@ -159,8 +191,9 @@ function ownedUpgradeHTML(up) {
              '<span class="i-desc">' + up.desc + '</span>' +
            '</span>' +
            '<span class="upgrade-actions">' +
-             '<button class="btn primary upgrade-action" data-u-action="improve" data-u="' + up.id + '" data-cost="' + cost + '"' +
-               (!isFinite(cost) || state.bamboo < cost ? ' disabled' : '') + '>Améliorer · ' + fmt(cost) + '</button>' +
+             '<button class="btn primary upgrade-action" data-u-action="improve" data-u="' + up.id + '" data-level="' + level + '" data-cost="' + cost + '"' +
+               (maxed || !isFinite(cost) || state.bamboo < cost ? ' disabled' : '') + '>' +
+               (maxed ? 'Niveau maximal' : 'Améliorer · ' + fmt(cost)) + '</button>' +
              '<button class="btn warn upgrade-action" data-u-action="sell" data-u="' + up.id + '">Vendre · +' + fmt(refund) + '</button>' +
            '</span>' +
          '</article>';

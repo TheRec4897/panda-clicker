@@ -2,3 +2,4 @@ node_modules
 payments/node_modules
 dist
 .env
+CHANGELOG.md

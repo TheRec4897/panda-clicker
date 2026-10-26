@@ -89,7 +89,7 @@ function mergeState(saved) {
   };
   Object.keys(merged.u).forEach((id) => {
     const level = merged.u[id] === true ? 1 : Math.floor(+merged.u[id]);
-    if (UPGRADE_BY_ID[id] && level > 0 && isFinite(level)) merged.u[id] = level;
+    if (UPGRADE_BY_ID[id] && level > 0 && isFinite(level)) merged.u[id] = Math.min(level, MAX_UPGRADE_LEVEL);
     else delete merged.u[id];
   });
   ['bamboo', 'all', 'clicks', 'golden', 'jade', 'jadeTotal', 'played', 'seen'].forEach((key) => {

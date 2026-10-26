@@ -59,6 +59,6 @@ function buyJadeUpgrade(id) {
 
 /** Une amélioration est visible quand on s'en approche ou qu'on a assez de bâtiments. */
 function isUpgradeUnlocked(up) {
-  if (up.type === 'b') return state.b[up.building] >= up.needed;
+  if (up.type === 'b' || up.type === 'bClick') return state.b[up.building] >= up.needed;
   return state.all >= up.cost * 0.1 || state.bamboo >= up.cost * 0.5;
 }

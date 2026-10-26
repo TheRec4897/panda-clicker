@@ -31,7 +31,7 @@ function improveUpgrade(id) {
   const up = UPGRADE_BY_ID[id];
   const level = upgradeLevel(id);
   const cost = up && upgradeLevelCost(up, level);
-  if (!up || !level || !isFinite(cost) || state.bamboo < cost) {
+  if (!up || !level || level >= MAX_UPGRADE_LEVEL || !isFinite(cost) || state.bamboo < cost) {
     beep(180, 0.08, 0.05);
     return;
   }

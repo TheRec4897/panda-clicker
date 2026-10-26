@@ -5,6 +5,7 @@ const JADE_UPGRADES = [
   { id: 'g2',      name: 'Aura persistante',       cost: 2,  desc: 'Le panda doré reste 50 % plus longtemps et ses frénésies durent 25 % de plus.' },
   { id: 'off',     name: 'Sommeil productif',      cost: 3,  desc: 'Hors ligne, les pandas travaillent à 50 % (8 h maximum).' },
   { id: 'click',   name: 'Patte de jade',          cost: 4,  desc: 'Tes clics rapportent 5 fois plus.' },
+  { id: 'click_bamboo', name: 'Patte du destin', cost: 50, desc: 'Chaque clic rapporte 1 000 000 000 000 bambous supplémentaires.' },
   { id: 'babies',  name: 'Nurserie céleste',       cost: 5,  desc: 'À l’achat, reçoit immédiatement 1 000 bébés pandas.' },
   { id: 'prod',    name: 'Bénédiction de la forêt', cost: 6, desc: 'Production globale ×5.' },
   { id: 'cost',    name: 'Marchandage zen',        cost: 7, desc: 'Les bâtiments coûtent 15% moins cher.' },
@@ -111,6 +112,27 @@ BUILDINGS.forEach((building, i) => {
       () => state.b[i] >= x);
   });
 });
+
+// Succès caché : atteindre le niveau maximal de toutes les améliorations.
+addAchievement(
+  'all_upgrades_maxed',
+  'Perfection absolue',
+  'Atteindre le niveau 10 de toutes les améliorations.',
+  () => UPGRADES.every((up) => {
+    const level = state.u[up.id] === true ? 1 : Number(state.u[up.id]) || 0;
+    return level >= MAX_UPGRADE_LEVEL;
+  }),
+  { hidden: true }
+);
+
+// Succès caché et légendaire : acheter la Patte du destin.
+addAchievement(
+  'jade_click_bamboo',
+  'Le clic absolu',
+  'Posséder la Patte du destin.',
+  () => !!state.pu.click_bamboo,
+  { hidden: true, legendary: true }
+);
 
 // Succès caché et légendaire : obtenir tous les autres succès.
 // À garder en DERNIER dans la liste : ainsi, il se débloque dans la même
