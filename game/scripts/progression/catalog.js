@@ -5,12 +5,12 @@ const JADE_UPGRADES = [
   { id: 'g2',      name: 'Aura persistante',       cost: 2,  desc: 'Le panda doré reste 50 % plus longtemps et ses frénésies durent 25 % de plus.' },
   { id: 'off',     name: 'Sommeil productif',      cost: 3,  desc: 'Hors ligne, les pandas travaillent à 50 % (8 h maximum).' },
   { id: 'click',   name: 'Patte de jade',          cost: 4,  desc: 'Tes clics rapportent 5 fois plus.' },
-  { id: 'click_bamboo', name: 'Patte du destin', cost: 50, desc: 'Chaque clic rapporte 1 000 000 000 000 bambous supplémentaires.' },
   { id: 'babies',  name: 'Nurserie céleste',       cost: 5,  desc: 'À l’achat, reçoit immédiatement 1 000 bébés pandas.' },
   { id: 'prod',    name: 'Bénédiction de la forêt', cost: 6, desc: 'Production globale ×5.' },
   { id: 'cost',    name: 'Marchandage zen',        cost: 7, desc: 'Les bâtiments coûtent 15% moins cher.' },
   { id: 'lucky',   name: 'Pluie dorée',            cost: 8, desc: 'Les gains « chance » du panda doré sont doublés.' },
-  { id: 'prod2',   name: 'Âge d’or',               cost: 9, desc: 'Production globale ×10.' }
+  { id: 'prod2',   name: 'Âge d’or',               cost: 9, desc: 'Production globale ×10.' },
+  { id: 'click_bamboo', name: 'Patte du destin', cost: 50, desc: 'Chaque clic rapporte 1 000 000 000 000 bambous supplémentaires.' }
 ];
 
 
